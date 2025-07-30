@@ -1,15 +1,19 @@
 import { gql } from '@apollo/client';
 
-export const GET_HOME_PAGE_HERO = gql`
-  query GetHomePageHero {
+export const GET_BANNER_IMAGE_SECTION = gql`
+  query GetBannerImageSection {
     pageBy(uri: "/") {
-      id
-      acf {
-        hero_image {
-          sourceUrl
-          altText
-        }
-        hero_title
+      blocks {
+        name
+        attributesJSON
+      }
+    }
+    mediaItems(first: 100) {
+      nodes {
+        id
+        databaseId
+        sourceUrl
+        altText
       }
     }
   }
