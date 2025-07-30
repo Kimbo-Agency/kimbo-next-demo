@@ -11,7 +11,7 @@ import {
 
 // Setup Apollo client
 const client = new ApolloClient({
-  uri: 'http://localhost:10010/graphql',
+  uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT,
   cache: new InMemoryCache(),
 });
 
