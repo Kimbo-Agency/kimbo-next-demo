@@ -9,6 +9,28 @@ import {
   gql,
 } from '@apollo/client';
 
+// Types for GraphQL response
+interface Block {
+  name: string;
+  attributesJSON?: string;
+}
+
+interface MediaItem {
+  id: string;
+  databaseId: number;
+  sourceUrl: string;
+  altText: string;
+}
+
+interface BannerQueryData {
+  pageBy: {
+    blocks: Block[];
+  };
+  mediaItems: {
+    nodes: MediaItem[];
+  };
+}
+
 // Setup Apollo client
 const client = new ApolloClient({
   uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT,
@@ -36,13 +58,13 @@ const GET_BANNER_IMAGE_SECTION = gql`
 `;
 
 function BannerImageSection() {
-  const { loading, error, data } = useQuery(GET_BANNER_IMAGE_SECTION);
+  const { loading, error, data } = useQuery<BannerQueryData>(GET_BANNER_IMAGE_SECTION);
 
   if (loading) return <p>Loading banner...</p>;
   if (error) return <p>Error loading banner: {error.message}</p>;
 
   const bannerBlocks = data?.pageBy?.blocks?.filter(
-    (block: any) => block.name === 'acf/banner-image-section'
+    (block: Block) => block.name === 'acf/banner-image-section'
   );
 
   if (!bannerBlocks || bannerBlocks.length === 0) {
@@ -51,7 +73,7 @@ function BannerImageSection() {
 
   return (
     <>
-      {bannerBlocks.map((block: any, index: number) => {
+      {bannerBlocks.map((block: Block, index: number) => {
         let attrs = null;
         try {
           attrs = block.attributesJSON ? JSON.parse(block.attributesJSON) : null;
@@ -60,12 +82,12 @@ function BannerImageSection() {
         }
 
         const bannerTitle = attrs?.data?.banner_title || 'Default Banner Title';
-        const bannerSubtitle = attrs?.data?.banner_subtitle || '';  // new field
+        const bannerSubtitle = attrs?.data?.banner_subtitle || '';
 
         const bannerImageId = attrs?.data?.banner_image;
 
         const matchedImage = data?.mediaItems?.nodes?.find(
-          (item: any) => item.databaseId === bannerImageId
+          (item: MediaItem) => item.databaseId === bannerImageId
         );
 
         const imageUrl = matchedImage?.sourceUrl || '';
